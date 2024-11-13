@@ -7,6 +7,7 @@
 > 注意：
 >	1. 修改`dbger.h`文件，通过串口输出日志，而不是`RTT`;
 >	2. `WRP`和`RDP`状态可以通过`STM32CubeProgrammer`直接读取及设置，也可以在程序中设置；
+>	3. 此工程主要操作的是`MCU Option Bytes`；而这个`Option Bytes`还有其他控制功能，比如和`IWDG`，低功耗相关；还有两个用户可写的字节，可以保存任意状态数据，可以和升级功能搭配使用！
 
 ### 1. 读保护`RDP`
 1. 使能读保护后，每次尝试通过`JLink`读取固件或者通过`RTT Viewer`读取日志等方式去读`MCU`内容时，都会导致`MCU`进入`Hard_Fault`，必须上电复位`POR`后才能重新运行！
@@ -109,3 +110,5 @@ void set_flash_write_protection(uint32_t pages, uint32_t wrpSta)
 1. `MDK`可以很方便地设置多个`Project targets`，每个`target`的功能一样，但是可以设置完全不同的工程配置；
 2. 必须在新建`target`之前，通过`STM32CubeMx`生成完整的代码；实测在新建`target`后，再通过`STM32CubeMx`生成代码会导致工程导入失败！
 3. 从`Flash`启动时，代码放在`Flash`，运行时需使用`RAM`；当设置从`SRAM`启动，也需要将`SRAM`分成两个区域，一个类似`Flash`存储代码，一个用于程序运行的`RAM`；
+4. 切换`target`时，需要点击`MDK`的`rebuild`全部重新编译，不然有些文件不会被更新，导致程序启动失败；
+5. 工程通过[`INI`文件](./MDK-ARM/JLinkSettings_SRAM.ini)强制设置了`MSP`和`PC`指针，所以在使用`SRAM target`启动时，即使没有设置对应的`BOOT0/1`值也可以启动成功；详情可见`参考1`；
